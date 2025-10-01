@@ -3,6 +3,7 @@ let isRecognizing = false;
 let transcriptElement = document.getElementById("transcript");
 let rules = [];
 let finalTranscript = ""; // store finalized text
+let lastInterim = "";     // track last interim text
 
 // Load grammar rules from rules.json
 fetch("rules.json")
@@ -12,7 +13,7 @@ fetch("rules.json")
   })
   .catch(error => console.error("Error loading rules:", error));
 
-// Apply grammar rules and highlight mistakes
+// Highlight grammar mistakes
 function highlightMistakes(text) {
   let highlighted = text;
   rules.forEach(rule => {
@@ -24,11 +25,11 @@ function highlightMistakes(text) {
   return highlighted;
 }
 
-// Create a new recognition instance
+// Create recognition instance
 function createRecognition() {
   let recog = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recog.continuous = true;       // keep listening
-  recog.interimResults = true;   // partial results
+  recog.continuous = true;
+  recog.interimResults = true;
   recog.lang = "en-US";
 
   recog.onresult = (event) => {
@@ -37,15 +38,19 @@ function createRecognition() {
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const result = event.results[i];
       if (result.isFinal) {
-        // ✅ Only add final results once
         finalTranscript += result[0].transcript.trim() + " ";
+        lastInterim = ""; // reset last interim after final
       } else {
-        // ✅ Overwrite interim each time instead of appending
         interimTranscript = result[0].transcript;
+
+        // ✅ Only keep new text for interim to avoid duplication
+        if (interimTranscript.startsWith(lastInterim)) {
+          interimTranscript = interimTranscript.slice(lastInterim.length);
+        }
+        lastInterim = result[0].transcript; // update last interim
       }
     }
 
-    // ✅ Render final text with mistakes highlighted + interim text
     let checkedText = highlightMistakes(finalTranscript);
     transcriptElement.innerHTML =
       checkedText + (interimTranscript ? `<span style="color: gray">${interimTranscript}</span>` : "");
@@ -53,8 +58,6 @@ function createRecognition() {
 
   recog.onerror = (event) => {
     console.error("Speech recognition error:", event.error);
-
-    // Restart automatically if network/nomatch errors happen
     if (isRecognizing && event.error !== "not-allowed") {
       recog.stop();
       recognition = createRecognition();
@@ -64,7 +67,6 @@ function createRecognition() {
 
   recog.onend = () => {
     if (isRecognizing) {
-      // Restart if it stops unexpectedly
       recognition = createRecognition();
       recognition.start();
     }
@@ -76,7 +78,8 @@ function createRecognition() {
 // Start button
 document.getElementById("startBtn").addEventListener("click", () => {
   if (!isRecognizing) {
-    finalTranscript = ""; // clear old text
+    finalTranscript = ""; 
+    lastInterim = "";
     transcriptElement.innerHTML = "";
     recognition = createRecognition();
     recognition.start();
