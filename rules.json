@@ -1,0 +1,115 @@
+{
+    "rules": [
+      {
+        "name": "Double article",
+        "pattern": "\\b(the\\s+the|a\\s+a|an\\s+an)\\b",
+        "message": "Avoid using two articles in a row."
+      },
+      {
+        "name": "Article before vowel",
+        "pattern": "\\b(a\\s+[aeiouAEIOU]\\w*)\\b",
+        "message": "Use 'an' before words that start with vowels."
+      },
+      {
+        "name": "Unnecessary article with uncountable nouns",
+        "pattern": "\\b(the\\s+(information|advice|news|homework|knowledge))\\b",
+        "message": "Do not use 'the' with uncountable nouns."
+      },
+      {
+        "name": "Third person singular verb",
+        "pattern": "\\b(he|she|it)\\s+(go|want|eat|need|like|play|work|study)\\b",
+        "message": "Add -s to verbs with he/she/it (e.g., he goes)."
+      },
+      {
+        "name": "Past simple after did",
+        "pattern": "\\b(did\\s+\\w+ed)\\b",
+        "message": "After 'did', use the base verb (e.g., did go, not did went)."
+      },
+      {
+        "name": "Wrong continuous tense",
+        "pattern": "\\b(is|am|are|was|were)\\s+\\w+ed\\b",
+        "message": "Use -ing form after 'is/was' for continuous tenses (e.g., is going)."
+      },
+      {
+        "name": "Future tense double will",
+        "pattern": "\\b(will\\s+will)\\b",
+        "message": "Do not repeat 'will'. Use only once."
+      },
+      {
+        "name": "Going to + past verb",
+        "pattern": "\\b(going to\\s+\\w+ed)\\b",
+        "message": "After 'going to', use the base verb (e.g., going to play)."
+      },
+      {
+        "name": "Present perfect with past time",
+        "pattern": "\\b(has|have)\\s+\\w+ed\\s+(yesterday|last\\s+week|in\\s+\\d{4})\\b",
+        "message": "Do not use present perfect with past time expressions. Use past simple."
+      },
+      {
+        "name": "Continuous with stative verbs",
+        "pattern": "\\b(am|is|are|was|were)\\s+(know|like|believe|understand|need)ing\\b",
+        "message": "Do not use stative verbs in continuous form (e.g., I know, not I am knowing)."
+      },
+      {
+        "name": "Plural nouns after quantifiers",
+        "pattern": "\\b(many|several|few)\\s+([A-Za-z]+[^s])\\b",
+        "message": "Nouns after 'many/several/few' should usually be plural."
+      },
+      {
+        "name": "Unnecessary plural with uncountables",
+        "pattern": "\\b(informations|advices|furnitures|homeworks|knowledges)\\b",
+        "message": "Uncountable nouns should not be plural."
+      },
+      {
+        "name": "Double negative",
+        "pattern": "\\b(didn't\\s+never|don't\\s+nothing|can't\\s+no|haven't\\s+never)\\b",
+        "message": "Avoid double negatives in English."
+      },
+      {
+        "name": "Confusion its/it's",
+        "pattern": "\\bits\\s+own\\b",
+        "message": "'Its' = possessive, 'it's' = it is."
+      },
+      {
+        "name": "Wrong comparative",
+        "pattern": "\\b(more\\s+better|more\\s+worse|more\\s+easier)\\b",
+        "message": "Do not use 'more' with comparatives (e.g., say better, not more better)."
+      },
+      {
+        "name": "Superlative form",
+        "pattern": "\\b(the\\s+most\\s+best|the\\s+most\\s+worst)\\b",
+        "message": "Do not use 'most' with superlatives (say 'the best')."
+      },
+      {
+        "name": "Preposition mistake",
+        "pattern": "\\b(discuss about|married with|depend of)\\b",
+        "message": "Check prepositions: discuss (no about), married to, depend on."
+      },
+      {
+        "name": "Modal verb + to",
+        "pattern": "\\b(can to|must to|should to|might to)\\b",
+        "message": "Do not use 'to' after modal verbs."
+      },
+      {
+        "name": "Wrong passive form",
+        "pattern": "\\b(is|was|were|are)\\s+\\w+ing\\s+by\\b",
+        "message": "Passive uses past participle (e.g., is written), not -ing."
+      },
+      {
+        "name": "There is with plurals",
+        "pattern": "\\b(there is\\s+\\w+s)\\b",
+        "message": "Use 'there are' with plural nouns."
+      },
+      {
+        "name": "Much with countables",
+        "pattern": "\\b(much\\s+\\w+s)\\b",
+        "message": "Use 'many' with plural countable nouns."
+      },
+      {
+        "name": "Few/many with uncountables",
+        "pattern": "\\b(few|many)\\s+(money|water|time|information)\\b",
+        "message": "Use 'little/much' with uncountable nouns."
+      }
+    ]
+  }
+  
