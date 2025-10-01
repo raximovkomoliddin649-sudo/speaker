@@ -35,22 +35,26 @@ function createRecognition() {
     let interimTranscript = "";
 
     for (let i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) {
-        // add final text once
-        finalTranscript += event.results[i][0].transcript.trim() + " ";
+      const result = event.results[i];
+      if (result.isFinal) {
+        // ✅ Only add final results once
+        finalTranscript += result[0].transcript.trim() + " ";
       } else {
-        // replace interim each time (not append)
-        interimTranscript = event.results[i][0].transcript;
+        // ✅ Overwrite interim each time instead of appending
+        interimTranscript = result[0].transcript;
       }
     }
 
+    // ✅ Render final text with mistakes highlighted + interim text
     let checkedText = highlightMistakes(finalTranscript);
     transcriptElement.innerHTML =
-      checkedText + `<span style="color: gray">${interimTranscript}</span>`;
+      checkedText + (interimTranscript ? `<span style="color: gray">${interimTranscript}</span>` : "");
   };
 
   recog.onerror = (event) => {
     console.error("Speech recognition error:", event.error);
+
+    // Restart automatically if network/nomatch errors happen
     if (isRecognizing && event.error !== "not-allowed") {
       recog.stop();
       recognition = createRecognition();
@@ -60,6 +64,7 @@ function createRecognition() {
 
   recog.onend = () => {
     if (isRecognizing) {
+      // Restart if it stops unexpectedly
       recognition = createRecognition();
       recognition.start();
     }
@@ -71,7 +76,7 @@ function createRecognition() {
 // Start button
 document.getElementById("startBtn").addEventListener("click", () => {
   if (!isRecognizing) {
-    finalTranscript = ""; // clear old text ONLY when new start
+    finalTranscript = ""; // clear old text
     transcriptElement.innerHTML = "";
     recognition = createRecognition();
     recognition.start();
