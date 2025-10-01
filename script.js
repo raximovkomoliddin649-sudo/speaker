@@ -2,8 +2,7 @@ let recognition;
 let isRecognizing = false;
 let transcriptElement = document.getElementById("transcript");
 let rules = [];
-let finalTranscript = ""; // store finalized text
-let lastInterim = "";     // track last interim text
+let finalTranscript = ""; // store finalized text globally
 
 // Load grammar rules from rules.json
 fetch("rules.json")
@@ -13,7 +12,7 @@ fetch("rules.json")
   })
   .catch(error => console.error("Error loading rules:", error));
 
-// Highlight grammar mistakes
+// Apply grammar rules and highlight mistakes
 function highlightMistakes(text) {
   let highlighted = text;
   rules.forEach(rule => {
@@ -25,35 +24,38 @@ function highlightMistakes(text) {
   return highlighted;
 }
 
-// Create recognition instance
+// Initialize recognition
 function createRecognition() {
   let recog = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recog.continuous = true;
   recog.interimResults = true;
   recog.lang = "en-US";
 
+  let lastInterim = ""; // store last interim locally
+
   recog.onresult = (event) => {
     let interimTranscript = "";
+    let localFinal = "";
 
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const result = event.results[i];
       if (result.isFinal) {
-        finalTranscript += result[0].transcript.trim() + " ";
-        lastInterim = ""; // reset last interim after final
+        localFinal += result[0].transcript.trim() + " ";
       } else {
         interimTranscript = result[0].transcript;
-
-        // ✅ Only keep new text for interim to avoid duplication
-        if (interimTranscript.startsWith(lastInterim)) {
-          interimTranscript = interimTranscript.slice(lastInterim.length);
-        }
-        lastInterim = result[0].transcript; // update last interim
       }
     }
 
+    // Append new final text only once
+    finalTranscript += localFinal;
+
+    // Render final + interim (interim shown in gray)
     let checkedText = highlightMistakes(finalTranscript);
     transcriptElement.innerHTML =
       checkedText + (interimTranscript ? `<span style="color: gray">${interimTranscript}</span>` : "");
+
+    // Update lastInterim (optional, could be used for diff logic later)
+    lastInterim = interimTranscript;
   };
 
   recog.onerror = (event) => {
@@ -78,8 +80,7 @@ function createRecognition() {
 // Start button
 document.getElementById("startBtn").addEventListener("click", () => {
   if (!isRecognizing) {
-    finalTranscript = ""; 
-    lastInterim = "";
+    finalTranscript = ""; // clear old text
     transcriptElement.innerHTML = "";
     recognition = createRecognition();
     recognition.start();
