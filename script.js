@@ -2,7 +2,8 @@ let recognition;
 let isRecognizing = false;
 let transcriptElement = document.getElementById("transcript");
 let rules = [];
-let finalTranscript = ""; // store finalized text
+let finalTranscript = ""; 
+let lastResultIndex = 0; // track last processed index
 
 // Load grammar rules from rules.json
 fetch("rules.json")
@@ -12,7 +13,7 @@ fetch("rules.json")
   })
   .catch(error => console.error("Error loading rules:", error));
 
-// Apply grammar rules and highlight mistakes
+// Highlight grammar mistakes
 function highlightMistakes(text) {
   let highlighted = text;
   rules.forEach(rule => {
@@ -24,19 +25,20 @@ function highlightMistakes(text) {
   return highlighted;
 }
 
-// Create a new recognition instance
+// Create recognition instance
 function createRecognition() {
   let recog = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recog.continuous = true;       // keep listening
-  recog.interimResults = true;   // partial results
+  recog.continuous = true;
+  recog.interimResults = true;
   recog.lang = "en-US";
 
   recog.onresult = (event) => {
     let interimTranscript = "";
 
-    for (let i = event.resultIndex; i < event.results.length; i++) {
+    for (let i = lastResultIndex; i < event.results.length; i++) {
       if (event.results[i].isFinal) {
         finalTranscript += event.results[i][0].transcript + " ";
+        lastResultIndex = i + 1; // update processed index
       } else {
         interimTranscript += event.results[i][0].transcript;
       }
@@ -49,20 +51,12 @@ function createRecognition() {
 
   recog.onerror = (event) => {
     console.error("Speech recognition error:", event.error);
-
-    // Restart automatically if network/nomatch errors happen
-    if (isRecognizing && event.error !== "not-allowed") {
-      recog.stop();
-      recognition = createRecognition();
-      recognition.start();
-    }
   };
 
   recog.onend = () => {
     if (isRecognizing) {
-      // Sometimes it stops silently; restart if user hasn't pressed Stop
-      recognition = createRecognition();
-      recognition.start();
+      // recognition ended unexpectedly
+      console.log("Recognition ended, restart by pressing Start again.");
     }
   };
 
@@ -72,7 +66,8 @@ function createRecognition() {
 // Start button
 document.getElementById("startBtn").addEventListener("click", () => {
   if (!isRecognizing) {
-    finalTranscript = ""; // clear old text
+    finalTranscript = ""; 
+    lastResultIndex = 0;
     transcriptElement.innerHTML = "";
     recognition = createRecognition();
     recognition.start();
@@ -83,7 +78,6 @@ document.getElementById("startBtn").addEventListener("click", () => {
 // Stop button
 document.getElementById("stopBtn").addEventListener("click", () => {
   if (isRecognizing) {
-    recognition.onend = null; // prevent auto-restart
     recognition.stop();
     isRecognizing = false;
   }
